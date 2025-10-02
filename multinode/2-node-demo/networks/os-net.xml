@@ -1,0 +1,6 @@
+<network>
+  <name>os-net</name>
+  <bridge name="br-os"/>
+  <ip address="10.10.2.1" netmask="255.255.255.0">
+  </ip>
+</network>

@@ -1,0 +1,20 @@
+# /etc/netplan/01-bridge-config.yaml
+# Replace your physical interface name (enp3s0) with actual name from 'ip a'
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp3s0:  # Replace with your actual interface name
+      dhcp4: false
+      dhcp6: false
+  bridges:
+    br-ext:
+      interfaces: [enp3s0]  # Replace with your actual interface name
+      dhcp4: false  # or set static IP like below
+      addresses: [192.168.0.25/24]
+      gateway4: 192.168.0.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+      parameters:
+        stp: false
+        forward-delay: 0
