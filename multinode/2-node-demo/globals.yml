@@ -626,7 +626,7 @@ enable_zun: "no"
 # Neutron - networking options
 ##############################
 # Enable distributed floating ip for OVN deployments
-#neutron_ovn_distributed_fip: "no"
+neutron_ovn_distributed_fip: "yes"
 
 # Enable DHCP agent(s) to use with OVN
 #neutron_ovn_dhcp_agent: "no"
@@ -863,3 +863,4 @@ enable_zun: "no"
 # If `etcd_remove_deleted_members` is enabled, Kolla Ansible will automatically
 # remove etcd members from the cluster that are no longer in the inventory.
 #etcd_remove_deleted_members: "no"
+
