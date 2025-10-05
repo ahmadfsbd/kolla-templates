@@ -46,6 +46,7 @@ workaround_ansible_issue_8743: yes
 kolla_base_distro: "ubuntu"
 
 # Do not override this unless you know what you are doing.
+# Check releases here: https://docs.openstack.org/releasenotes/kolla-ansible/
 #openstack_release: "master"
 
 # Docker image tag used by default.
@@ -145,7 +146,7 @@ network_interface: "enp2s0"
 
 # Configure the address family (AF) per network.
 # Valid options are [ ipv4, ipv6 ]
-#network_address_family: "ipv4"
+network_address_family: "ipv4"
 #api_address_family: "{{ network_address_family }}"
 #storage_address_family: "{{ network_address_family }}"
 #migration_address_family: "{{ api_address_family }}"
@@ -159,6 +160,7 @@ network_interface: "enp2s0"
 # configurations. It is recommended this interface not be configured with any IP
 # addresses for that reason.
 neutron_external_interface: "enp3s0"
+neutron_bridge_name: "br-ex"
 
 # Valid options are [ openvswitch, ovn, linuxbridge ]
 # Do note linuxbridge is *EXPERIMENTAL* in Neutron since Zed and it requires extra tweaks to config to be usable.
@@ -166,7 +168,7 @@ neutron_external_interface: "enp3s0"
 neutron_plugin_agent: "ovn"
 
 # Valid options are [ internal, infoblox ]
-#neutron_ipam_driver: "internal"
+neutron_ipam_driver: "internal"
 
 # Configure Neutron upgrade option, currently Kolla support
 # two upgrade ways for Neutron: legacy_upgrade and rolling_upgrade
@@ -406,7 +408,7 @@ enable_kuryr: "no"
 #enable_neutron_qos: "no"
 #enable_neutron_agent_ha: "no"
 #enable_neutron_bgp_dragent: "no"
-#enable_neutron_provider_networks: "no"
+enable_neutron_provider_networks: "yes"
 #enable_neutron_segments: "no"
 #enable_neutron_sfc: "no"
 #enable_neutron_trunk: "no"
@@ -629,7 +631,7 @@ enable_zun: "no"
 neutron_ovn_distributed_fip: "yes"
 
 # Enable DHCP agent(s) to use with OVN
-#neutron_ovn_dhcp_agent: "no"
+neutron_ovn_dhcp_agent: "yes"
 
 #############################
 # Horizon - Dashboard Options
@@ -863,4 +865,5 @@ neutron_ovn_distributed_fip: "yes"
 # If `etcd_remove_deleted_members` is enabled, Kolla Ansible will automatically
 # remove etcd members from the cluster that are no longer in the inventory.
 #etcd_remove_deleted_members: "no"
+
 
