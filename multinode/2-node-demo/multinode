@@ -27,7 +27,7 @@ control-01 ansible_ssh_user=ubuntu ansible_become=True ansible_private_key_file=
 control-01 ansible_ssh_user=ubuntu ansible_become=True ansible_private_key_file=/home/ubuntu/.ssh/id_rsa
 
 [deployment]
-localhost  ansible_connection=local
+localhost       ansible_connection=local
 
 [baremetal:children]
 control
@@ -42,9 +42,6 @@ network
 
 # You can explicitly specify which hosts run each project by updating the
 # groups in the sections below. Common services are grouped together.
-
-[bifrost:children]
-# Empty group for non-bifrost deployments
 
 [common:children]
 control
@@ -103,9 +100,14 @@ control
 network
 
 [openvswitch:children]
-# Disabled - using OVN instead of OVS
+network
+compute
+manila-share
 
 [cinder:children]
+control
+
+[cloudkitty:children]
 control
 
 [memcached:children]
@@ -121,7 +123,7 @@ control
 control
 
 [ironic:children]
-# Disabled - using MAAS for bare metal management
+control
 
 [magnum:children]
 control
@@ -138,7 +140,17 @@ control
 [aodh:children]
 control
 
+[cyborg:children]
+control
+compute
+
 [gnocchi:children]
+control
+
+[tacker:children]
+control
+
+[trove:children]
 control
 
 [watcher:children]
@@ -153,29 +165,23 @@ control
 [placement:children]
 control
 
-[redis:children]
-control
+[bifrost:children]
+deployment
 
-[cyborg:children]
-control
-
-[trove:children]
+[zun:children]
 control
 
 [skyline:children]
 control
 
-[tacker:children]
+[redis:children]
 control
 
 [blazar:children]
 control
 
 [venus:children]
-control
-
-[zun:children]
-control
+monitoring
 
 [letsencrypt:children]
 loadbalancer
@@ -241,25 +247,25 @@ nova
 
 # Neutron
 [ironic-neutron-agent:children]
-# Disabled - using MAAS for bare metal management
+neutron
 
 [neutron-bgp-dragent:children]
-# Disabled - not needed for basic setup (BGP dynamic routing)
+neutron
 
 [neutron-dhcp-agent:children]
-# Not needed with OVN - OVN handles DHCP natively
+neutron
 
 [neutron-infoblox-ipam-agent:children]
-# Disabled - not needed for basic OVN setup
+neutron
 
 [neutron-l3-agent:children]
-# Not needed with OVN - OVN handles L3 routing natively
+neutron
 
 [neutron-metadata-agent:children]
-# Not needed with OVN - use neutron-ovn-metadata-agent instead
+neutron
 
 [neutron-metering-agent:children]
-# Disabled - not needed unless using network metering
+neutron
 
 [neutron-periodic-worker:children]
 control
@@ -294,9 +300,6 @@ cinder
 [cinder-volume:children]
 storage
 
-[cloudkitty:children]
-control
-
 # Cloudkitty
 [cloudkitty-api:children]
 cloudkitty
@@ -308,7 +311,7 @@ cloudkitty
 [iscsid:children]
 compute
 storage
-# ironic removed - using MAAS for bare metal management
+ironic
 
 [tgtd:children]
 storage
@@ -348,19 +351,19 @@ heat
 
 # Ironic
 [ironic-api:children]
-# Disabled - using MAAS for bare metal management
+ironic
 
 [ironic-conductor:children]
-# Disabled - using MAAS for bare metal management
+ironic
 
 [ironic-dnsmasq:children]
-# Disabled - using MAAS for bare metal management
+ironic
 
 [ironic-tftp:children]
-# Disabled - using MAAS for bare metal management
+ironic
 
 [ironic-http:children]
-# Disabled - using MAAS for bare metal management
+ironic
 
 # Magnum
 [magnum-api:children]
@@ -585,7 +588,7 @@ ovn-controller-network
 compute
 
 [ovn-controller-network:children]
-compute
+network
 
 [ovn-database:children]
 control
