@@ -51,17 +51,25 @@ sudo apt update && sudo apt upgrade -y
 print_status "Disabling conflicting NTP services..."
 sudo systemctl disable --now systemd-timesyncd
 
-# Step 3: Install MAAS
-print_status "Installing MAAS..."
-sudo snap install --channel=3.6/stable maas
+# Step 3: Install MAAS if not installed
+if ! snap list | grep -q maas; then
+    print_status "Installing MAAS..."
+    sudo snap install --channel=3.6/stable maas
+else
+    print_warning "MAAS is already installed, skipping installation."
+fi
 
 # Step 4: Install and configure PostgreSQL
 print_status "Installing PostgreSQL..."
 sudo apt install -y postgresql
 
-print_status "Creating database user and database..."
-sudo -i -u postgres psql -c "CREATE USER \"$DBUSER\" WITH ENCRYPTED PASSWORD '$DBPASS'"
-sudo -i -u postgres createdb -O "$DBUSER" "$DBNAME"
+print_status "Creating database user and database (if not exists)..."
+USER_EXISTS=$(sudo -i -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DBUSER'")
+if [ "$USER_EXISTS" != "1" ]; then
+    sudo -i -u postgres psql -c "CREATE USER \"$DBUSER\" WITH ENCRYPTED PASSWORD '$DBPASS'"
+else
+    print_warning "PostgreSQL user '$DBUSER' already exists, skipping creation."
+fi
 
 # Step 5: Configure PostgreSQL authentication
 print_status "Configuring PostgreSQL authentication..."
@@ -84,18 +92,32 @@ fi
 print_status "Restarting PostgreSQL..."
 sudo systemctl restart postgresql
 
-# Step 7: Initialize MAAS with the database
-print_status "Initializing MAAS with database..."
-echo "$MAAS_URL" | sudo maas init region+rack --database-uri "postgres://$DBUSER:$DBPASS@localhost/$DBNAME"
+# Step 7: Initialize MAAS with database (only if not already initialized)
+print_status "Checking if MAAS is already initialized..."
+if sudo maas status >/dev/null 2>&1; then
+    print_warning "MAAS appears to be already initialized. Skipping initialization."
+else
+    print_status "Initializing MAAS with database..."
+    echo "$MAAS_URL" | sudo maas init region+rack --database-uri "postgres://$DBUSER:$DBPASS@localhost/$DBNAME"
+fi
 
-# Step 8: Create admin user
+# Step 8: Create MAAS admin user
 print_status "Creating MAAS admin user..."
-# Use here-document to handle interactive prompts
-sudo maas createadmin --username="$ADMIN_USERNAME" --email="$ADMIN_EMAIL" <<EOF
-$ADMIN_PASSWORD
-$ADMIN_PASSWORD
+
+# Check if admin user already exists
+if sudo maas apikey --username="$ADMIN_USERNAME" >/dev/null 2>&1; then
+    print_warning "MAAS admin user '$ADMIN_USERNAME' already exists, skipping creation."
+else
+    print_status "Creating new MAAS admin user..."
+    sudo maas createadmin \
+        --username="$ADMIN_USERNAME" \
+        --email="$ADMIN_EMAIL" \
+        --password="$ADMIN_PASSWORD" <<EOF
 $SSH_KEY_IMPORT
 EOF
+    print_status "Admin user '$ADMIN_USERNAME' created successfully."
+fi
+
 
 print_status "MAAS GUI is now accessible at: $MAAS_URL"
 
@@ -143,6 +165,11 @@ maas "$ADMIN_USERNAME" subnet update 10.10.2.0/24 managed=true || print_warning 
 print_status "Creating dynamic IP range for PXE network..."
 maas "$ADMIN_USERNAME" ipranges create type=dynamic subnet=1 start_ip='10.10.1.100' end_ip='10.10.1.200' || print_warning "Failed to create IP range"
 
+# Reserve static IP range for OS network
+print_status "Creating static IP range for OS network..."
+maas "$ADMIN_USERNAME" ipranges create type=reserved subnet=2 start_ip='10.10.2.50' end_ip='10.10.2.100' || print_warning "Failed to create IP range"
+
+
 # Enable DHCP on PXE network
 print_status "Enabling DHCP on PXE network..."
 maas "$ADMIN_USERNAME" vlan update fabric-0 0 dhcp_on=True primary_rack=maas || print_warning "Failed to enable DHCP"
@@ -156,23 +183,23 @@ print_status "Admin email: $ADMIN_EMAIL"
 print_status "Setting kernel options for deployed machines..."
 maas "$ADMIN_USERNAME" maas set-config name=kernel_opts value="$KERNEL_OPTS"
 
-# Step 14: Generate SSH keys in MAAS snap environment
+# Step 14: Set kernel options for deployed machines
+print_status "Setting kernel options for deployed machines..."
+maas "$ADMIN_USERNAME" maas set-config name=kernel_opts value="$KERNEL_OPTS"
+
+# Step 15: Generate SSH keys in MAAS snap environment
 print_status "Generating SSH keys in MAAS snap environment..."
 sudo snap run --shell maas <<'SNAP_EOF'
-# Create .ssh directory if it doesn't exist
-mkdir -p /var/snap/maas/current/.ssh
-chmod 700 /var/snap/maas/current/.ssh
-
 # Generate SSH key if it doesn't exist
-if [ ! -f /var/snap/maas/current/.ssh/id_rsa ]; then
-    ssh-keygen -t rsa -b 4096 -f /var/snap/maas/current/.ssh/id_rsa -N ""
-    chmod 600 /var/snap/maas/current/.ssh/id_rsa
-    chmod 644 /var/snap/maas/current/.ssh/id_rsa.pub
+if [ ! -f /root/.ssh/id_rsa ]; then
+    ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""
+    chmod 600 /root/.ssh/id_rsa
+    chmod 644 /root/.ssh/id_rsa.pub
 fi
 
 # Display the public key
 echo "=== MAAS SSH Public Key ==="
-cat /var/snap/maas/current/.ssh/id_rsa.pub
+cat /root/.ssh/id_rsa.pub
 echo "=========================="
 SNAP_EOF
 
