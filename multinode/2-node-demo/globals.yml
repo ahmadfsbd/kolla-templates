@@ -46,7 +46,6 @@ workaround_ansible_issue_8743: yes
 kolla_base_distro: "ubuntu"
 
 # Do not override this unless you know what you are doing.
-# Check releases here: https://docs.openstack.org/releasenotes/kolla-ansible/
 #openstack_release: "master"
 
 # Docker image tag used by default.
@@ -161,6 +160,7 @@ network_address_family: "ipv4"
 # addresses for that reason.
 neutron_external_interface: "enp3s0"
 neutron_bridge_name: "br-ex"
+neutron_physical_networks: "physnet1"
 
 # Valid options are [ openvswitch, ovn, linuxbridge ]
 # Do note linuxbridge is *EXPERIMENTAL* in Neutron since Zed and it requires extra tweaks to config to be usable.
@@ -168,7 +168,7 @@ neutron_bridge_name: "br-ex"
 neutron_plugin_agent: "ovn"
 
 # Valid options are [ internal, infoblox ]
-neutron_ipam_driver: "internal"
+#neutron_ipam_driver: "internal"
 
 # Configure Neutron upgrade option, currently Kolla support
 # two upgrade ways for Neutron: legacy_upgrade and rolling_upgrade
@@ -334,10 +334,10 @@ neutron_ipam_driver: "internal"
 # OpenStack services can be enabled or disabled with these options
 #enable_aodh: "no"
 #enable_barbican: "no"
-enable_blazar: "no"
+#enable_blazar: "no"
 #enable_ceilometer: "no"
 #enable_ceilometer_ipmi: "no"
-enable_cells: "no"
+#enable_cells: "no"
 #enable_central_logging: "no"
 #enable_ceph_rgw: "no"
 #enable_ceph_rgw_loadbalancer: "{{ enable_ceph_rgw | bool }}"
@@ -352,9 +352,9 @@ enable_cells: "no"
 #enable_cinder_backend_pure_roce: "no"
 #enable_cinder_backend_pure_nvme_tcp: "no"
 #enable_cinder_backend_lightbits: "no"
-enable_cloudkitty: "no"
+#enable_cloudkitty: "no"
 #enable_collectd: "no"
-enable_cyborg: "no"
+#enable_cyborg: "no"
 #enable_designate: "no"
 #enable_destroy_images: "no"
 #enable_etcd: "no"
@@ -383,12 +383,12 @@ enable_cyborg: "no"
 #enable_horizon_venus: "{{ enable_venus | bool }}"
 #enable_horizon_watcher: "{{ enable_watcher | bool }}"
 #enable_horizon_zun: "{{ enable_zun | bool }}"
-enable_influxdb: "{{ enable_cloudkitty | bool and cloudkitty_storage_backend == 'influxdb' }}"
-enable_ironic: "no"
+#enable_influxdb: "{{ enable_cloudkitty | bool and cloudkitty_storage_backend == 'influxdb' }}"
+#enable_ironic: "no"
 #enable_ironic_neutron_agent: "no"
 #enable_ironic_prometheus_exporter: "{{ enable_ironic | bool and enable_prometheus | bool }}"
 #enable_iscsid: "{{ enable_cinder | bool and enable_cinder_backend_iscsi | bool }}"
-enable_kuryr: "no"
+#enable_kuryr: "no"
 #enable_magnum: "no"
 #enable_manila: "no"
 #enable_manila_backend_generic: "no"
@@ -423,22 +423,22 @@ enable_neutron_provider_networks: "yes"
 #enable_opensearch: "{{ enable_central_logging | bool or enable_osprofiler | bool or (enable_cloudkitty | bool and cloudkitty_storage_backend == 'opensearch') }}"
 #enable_opensearch_dashboards: "{{ enable_opensearch | bool }}"
 #enable_opensearch_dashboards_external: "{{ enable_opensearch_dashboards | bool }}"
-enable_openvswitch: "no"
-enable_ovn: "yes"
+#enable_openvswitch: "{{ enable_neutron | bool and neutron_plugin_agent != 'linuxbridge' }}"
+#enable_ovn: "{{ enable_neutron | bool and neutron_plugin_agent == 'ovn' }}"
 #enable_ovs_dpdk: "no"
 #enable_osprofiler: "no"
 #enable_placement: "{{ enable_nova | bool or enable_zun | bool }}"
 #enable_prometheus: "no"
 #enable_proxysql: "yes"
 #enable_redis: "no"
-enable_skyline: "no"
+#enable_skyline: "no"
 #enable_tacker: "no"
 #enable_telegraf: "no"
-enable_trove: "no"
-enable_trove_singletenant: "no"
-enable_venus: "no"
+#enable_trove: "no"
+#enable_trove_singletenant: "no"
+#enable_venus: "no"
 #enable_watcher: "no"
-enable_zun: "no"
+#enable_zun: "no"
 
 #############
 # S3 options
@@ -865,5 +865,3 @@ neutron_ovn_dhcp_agent: "yes"
 # If `etcd_remove_deleted_members` is enabled, Kolla Ansible will automatically
 # remove etcd members from the cluster that are no longer in the inventory.
 #etcd_remove_deleted_members: "no"
-
-
