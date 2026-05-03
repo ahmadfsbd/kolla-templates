@@ -1,0 +1,38 @@
+---
+# ═══════════════════════════════════════════════════════════════
+# Kolla-Ansible globals — all-in-one single VM
+# OpenStack master | Ubuntu 24.04 Noble
+# kolla-ansible branch: master
+# ═══════════════════════════════════════════════════════════════
+
+# Standard containers use the daily master Ubuntu Noble images
+# from quay.io/openstack.kolla/<service>:master-ubuntu-noble
+openstack_tag: "master-ubuntu-noble"
+
+# ── Horizon override ─────────────────────────────────────────
+# Replace stock Horizon with the custom Nexus build.
+# Built on top of the master-ubuntu-noble base — matches
+# the openstack_tag above so all APIs are compatible.
+horizon_image_full: "ahmadfsbd/horizon-nexus:master-ubuntu-noble-latest"
+
+# ── Base distro ──────────────────────────────────────────────
+kolla_base_distro: "ubuntu"
+
+# ── Networking ───────────────────────────────────────────────
+# enp1s0 — first virtio NIC  — management / SSH / kolla API
+# enp2s0 — second virtio NIC — Neutron external bridge (br-ex)
+# Both are on the libvirt default NAT network inside the VM.
+network_interface: "enp1s0"
+
+# Dedicated NIC for OVS br-ex — keeps management NIC reachable after deploy
+neutron_external_interface: "enp2s0"
+
+# VIP — must be an unused IP on the libvirt default NAT subnet (192.168.122.x)
+kolla_internal_vip_address: "192.168.122.100"
+
+# ── Neutron ──────────────────────────────────────────────────
+neutron_plugin_agent: "openvswitch"
+enable_neutron_provider_networks: "yes"
+
+# ── HAProxy / Keepalived ─────────────────────────────────────
+enable_haproxy: "yes"
