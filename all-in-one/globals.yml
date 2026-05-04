@@ -36,3 +36,5 @@ enable_neutron_provider_networks: "yes"
 
 # ── HAProxy / Keepalived ─────────────────────────────────────
 enable_haproxy: "yes"
+
+enable_horizon: "yes"
