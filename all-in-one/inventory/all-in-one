@@ -1,19 +1,19 @@
 # These initial groups are the only groups required to be modified. The
 # additional groups are for more control of the environment.
 [control]
-kolla-aio ansible_host=VM_IP ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.172 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [network]
-kolla-aio ansible_host=VM_IP ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.172 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [compute]
-kolla-aio ansible_host=VM_IP ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.172 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [storage]
-kolla-aio ansible_host=VM_IP ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.172 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [monitoring]
-kolla-aio ansible_host=VM_IP ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.172 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [deployment]
 localhost       ansible_connection=local
@@ -43,6 +43,13 @@ monitoring
 
 [etcd:children]
 control
+
+[telegraf:children]
+compute
+control
+monitoring
+network
+storage
 
 [hacluster:children]
 control
@@ -97,6 +104,9 @@ control
 [ironic:children]
 control
 
+[influxdb:children]
+monitoring
+
 [prometheus:children]
 monitoring
 
@@ -142,6 +152,9 @@ control
 [bifrost:children]
 deployment
 
+[zun:children]
+control
+
 [skyline:children]
 control
 
@@ -172,10 +185,10 @@ common
 [fluentd:children]
 common
 
-[kolla_logs:children]
+[kolla-logs:children]
 common
 
-[kolla_toolbox:children]
+[kolla-toolbox:children]
 common
 
 [opensearch:children]
@@ -236,9 +249,6 @@ neutron
 [neutron-metadata-agent:children]
 neutron
 
-[neutron-ovn-vpn-agent:children]
-neutron
-
 [neutron-metering-agent:children]
 neutron
 
@@ -267,26 +277,12 @@ network
 cinder
 
 [cinder-backup:children]
-cinder
-
-[cinder-backup-lvm:children]
-storage
-
-[cinder-backup-multiple:children]
-cinder
 storage
 
 [cinder-scheduler:children]
 cinder
 
 [cinder-volume:children]
-cinder
-
-[cinder-volume-lvm:children]
-storage
-
-[cinder-volume-multiple:children]
-cinder
 storage
 
 # Cloudkitty
@@ -297,12 +293,11 @@ cloudkitty
 cloudkitty
 
 # iSCSI
-# NOTE(mnasiadka): We need iscsid on cinder-volume hosts and clients
 [iscsid:children]
 compute
 storage
+ironic
 
-# NOTE(mnasiadka): We need tgtd on storage nodes for Cinder LVM
 [tgtd:children]
 storage
 
@@ -488,6 +483,19 @@ designate
 [placement-api:children]
 placement
 
+# Zun
+[zun-api:children]
+zun
+
+[zun-wsproxy:children]
+zun
+
+[zun-compute:children]
+compute
+
+[zun-cni-daemon:children]
+compute
+
 # Skyline
 [skyline-apiserver:children]
 skyline
@@ -544,13 +552,6 @@ monitoring
 
 [prometheus-libvirt-exporter:children]
 compute
-
-[prometheus-openstack-network-exporter:children]
-compute
-network
-
-[prometheus-valkey-exporter:children]
-valkey
 
 [masakari-api:children]
 control

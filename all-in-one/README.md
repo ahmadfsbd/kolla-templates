@@ -152,17 +152,29 @@ Fix any failures before continuing:
 
 ---
 
-## Step 9 — Deploy OpenStack
+## Step 9 — Pull container images
+
+```bash
+kolla-ansible pull -i ./all-in-one
+```
+
+Pre-pulls **all** container images onto the VM before deploy starts. Takes **10–20 min** depending on internet speed.
+
+> **Why this step matters:** `deploy` pulls images on-demand per role and can silently skip `kolla_toolbox` (needed early by MariaDB's WSREP check). Running `pull` first guarantees every image is present before any service starts.
+
+---
+
+## Step 10 — Deploy OpenStack
 
 ```bash
 kolla-ansible deploy -i ./all-in-one
 ```
 
-Pulls ~20 container images onto the VM and starts all services. Takes **20–30 min**.
+Starts all services using the pre-pulled images. Takes **10–20 min**.
 
 ---
 
-## Step 10 — Post-deploy
+## Step 11 — Post-deploy
 
 ```bash
 kolla-ansible post-deploy -i ./all-in-one
