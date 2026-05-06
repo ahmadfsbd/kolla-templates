@@ -1,19 +1,19 @@
 # These initial groups are the only groups required to be modified. The
 # additional groups are for more control of the environment.
 [control]
-kolla-aio ansible_host=192.168.122.227 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.233 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [network]
-kolla-aio ansible_host=192.168.122.227 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.233 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [compute]
-kolla-aio ansible_host=192.168.122.227 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.233 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [storage]
-kolla-aio ansible_host=192.168.122.227 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.233 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [monitoring]
-kolla-aio ansible_host=192.168.122.227 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
+kolla-aio ansible_host=192.168.122.233 ansible_user=ubuntu ansible_become=true ansible_private_key_file=~/.ssh/id_ed25519
 
 [deployment]
 localhost       ansible_connection=local

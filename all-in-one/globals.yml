@@ -7,13 +7,13 @@
 
 # Standard containers use the daily master Ubuntu Noble images
 # from quay.io/openstack.kolla/<service>:master-ubuntu-noble
-openstack_tag: "master-ubuntu-noble"
+openstack_tag: "2025.2-ubuntu-noble"
 
 # ── Horizon override ─────────────────────────────────────────
 # Replace stock Horizon with the custom Nexus build.
 # Built on top of the master-ubuntu-noble base — matches
 # the openstack_tag above so all APIs are compatible.
-horizon_image_full: "ahmadfsbd/horizon-nexus:master-ubuntu-noble-latest"
+horizon_image_full: "ahmadfsbd/horizon-nexus:2025.2-ubuntu-noble-latest"
 
 # ── Base distro ──────────────────────────────────────────────
 kolla_base_distro: "ubuntu"

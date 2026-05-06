@@ -6,7 +6,7 @@ set -euo pipefail
 
 VM_NAME="kolla-aio"
 VM_IP="${1:-192.168.122.200}"
-VM_CPUS=4
+VM_CPUS=6
 VM_MEM=12288   # MB
 VM_DISK=80G
 BASE_IMG="/var/lib/libvirt/images/ubuntu-24.04.qcow2"

@@ -1,16 +1,16 @@
 # Kolla-Ansible All-in-One (single VM, host-driven)
 
-Deploy **OpenStack master (master-ubuntu-noble)** onto a remote VM.  
+Deploy **OpenStack 2025.2 (2025.2-ubuntu-noble)** onto a remote VM.  
 All commands run **on your host** — no SSH into the VM needed.  
-Horizon is replaced with **`ahmadfsbd/horizon-nexus:master-ubuntu-noble-latest`**.
+Horizon is replaced with **`ahmadfsbd/horizon-nexus:2025.2-ubuntu-noble-latest`**.
 
 ---
 
 ## Release mapping
 
-| Stream | Kolla image tag       | kolla-ansible branch |
-|--------|-----------------------|----------------------|
-| master | `master-ubuntu-noble` | `master`             |
+| Stream  | Kolla image tag          | kolla-ansible branch  |
+|---------|--------------------------|-----------------------|
+| stable  | `2025.2-ubuntu-noble`    | `stable/2025.2`       |
 
 ---
 
@@ -74,7 +74,7 @@ grep ansible_host all-in-one
 python3 -m venv --system-site-packages ~/kolla-venv
 source ~/kolla-venv/bin/activate
 pip install -U pip
-pip install git+https://opendev.org/openstack/kolla-ansible@master
+pip install git+https://opendev.org/openstack/kolla-ansible@stable/2025.2
 pip install docker
 ```
 
@@ -98,8 +98,8 @@ cp globals.yml /etc/kolla/globals.d/globals-override.yaml
 Key settings in `globals.yml`:
 
 ```yaml
-openstack_tag: "master-ubuntu-noble"                                 # all standard containers
-horizon_image_full: "ahmadfsbd/horizon-nexus:master-ubuntu-noble-latest"  # custom Horizon
+openstack_tag: "2025.2-ubuntu-noble"                                      # all standard containers
+horizon_image_full: "ahmadfsbd/horizon-nexus:2025.2-ubuntu-noble-latest"  # custom Horizon
 network_interface: "enp1s0"        # NIC 1 — management / SSH / kolla API
 neutron_external_interface: "enp2s0"  # NIC 2 — OVS br-ex (dedicated, avoids SSH loss)
 kolla_internal_vip_address: "192.168.122.100"
@@ -147,7 +147,7 @@ Fix any failures before continuing:
 |-------|-----|
 | `No module named 'docker'` | `pip install docker` (on the host venv) |
 | `No module named 'dbus'` | Recreate venv with `--system-site-packages` after `sudo apt install python3-dbus` |
-| `ansible-runner not found in kolla_toolbox` | `openstack_tag` must be `master-ubuntu-noble` |
+| `ansible-runner not found in kolla_toolbox` | kolla-ansible branch must match `openstack_tag` — use `stable/2025.2` with `2025.2-ubuntu-noble` |
 | MariaDB WSREP error | `ansible-galaxy collection install community.mysql:==3.10.3 --force` |
 
 ---
@@ -183,7 +183,7 @@ ssh ubuntu@$VM "cat /etc/kolla/admin-openrc.sh"
 
 # Verify custom Horizon container
 ssh ubuntu@$VM "sudo docker inspect horizon | grep -i image"
-# Expected: ahmadfsbd/horizon-nexus:master-ubuntu-noble-latest
+# Expected: ahmadfsbd/horizon-nexus:2025.2-ubuntu-noble-latest
 ```
 
 ---
