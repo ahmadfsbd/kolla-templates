@@ -1,0 +1,54 @@
+kolla_base_distro: "ubuntu"
+
+
+# Internal VIP: an unused IP on the controllers' network_interface subnet.
+# keepalived holds it on one controller at a time.
+# The nodes are OpenStack VMs, so in the underlying cloud:
+#   1. Reserve the IP with a port attached to no VM (Neutron picks a free IP):
+#        openstack port create --network <network> kolla-internal-vip
+#   2. Allow the VIP on EVERY controller's own port:
+#        openstack port set --allowed-address ip-address=<VIP> <controller-port-id>
+#   With more than one controller, the security group must also allow VRRP
+#   (IP protocol 112) between them.
+kolla_internal_vip_address: "10.11.11.102"
+
+network_interface: "enp3s0"
+
+neutron_plugin_agent: "ovn"
+
+openstack_logging_debug: "True"
+
+enable_aodh: true
+enable_blazar: true
+enable_ceilometer: true
+enable_cinder: true
+enable_cloudkitty: true
+enable_collectd: true
+enable_gnocchi: true
+enable_heat: true
+enable_magnum: true
+enable_octavia: true
+
+# Cinder LVM backend (test only: volumes live on one node and are served over iSCSI).
+# kolla finds the volume group by name (cinder_volume_group, default "cinder-volumes")
+# on the hosts in [storage], and prechecks fail if it's missing. Before deploying:
+#   1. In the underlying cloud, create a disk and attach it to the storage host:
+#        openstack volume create --size 100 os-ctl-01-cinder
+#        openstack server add volume os-ctl-01 os-ctl-01-cinder
+#   2. On os-ctl-01, create the volume group:
+#        lsblk                                  # find the new disk, e.g. /dev/vdb
+#        sudo pvcreate /dev/vdb
+#        sudo vgcreate cinder-volumes /dev/vdb
+#   Only if you add more backends later, create a volume type per backend:
+#        openstack volume type create --property volume_backend_name=lvm-1 lvm
+enable_cinder_backend_lvm: true
+#cinder_volume_group: "cinder-volumes"    # set only if you named the volume group differently
+enable_cinder_backup: false    # the default backup driver is Ceph, which you don't have
+
+
+# Octavia: use OVN's built-in load balancer instead of amphora VMs.
+# This needs no certificates, amphora image, management network or Valkey.
+# Limitation: TCP/UDP only (no TLS termination or HTTP/L7 rules).
+# To switch to amphora later: run `kolla-ansible octavia-certificates -i ./multinode`,
+# set enable_valkey: true, plan lb-mgmt-net, and upload an image tagged "amphora".
+octavia_provider_drivers: "ovn:OVN provider"
