@@ -52,3 +52,30 @@ enable_cinder_backup: false    # the default backup driver is Ceph, which you do
 # To switch to amphora later: run `kolla-ansible octavia-certificates -i ./multinode`,
 # set enable_valkey: true, plan lb-mgmt-net, and upload an image tagged "amphora".
 octavia_provider_drivers: "ovn:OVN provider"
+
+# --- TLS on the API endpoints -------------------------------------------------------
+#
+# Where Kolla looks for certificates (on the deploy host, /etc/kolla/certificates/):
+#   haproxy.pem            external endpoint: certificate + intermediates + private key, PEM
+#   haproxy-internal.pem   internal endpoint: same format
+#   ca/                    CA certificates copied into every container's trust store
+#   backend-cert.pem, backend-key.pem   only with kolla_enable_tls_backend
+# After any change to these files: kolla-ansible reconfigure -i <inventory> (then post-deploy if
+# the CA changed, so admin-openrc.sh picks it up).
+#
+# ===== LAB (active) — hgi-os-01 ===============================================================
+# One VIP (10.11.11.102) for internal and external. With a shared VIP Kolla only allows TLS when
+# the *internal* setting is on; kolla_enable_tls_external then follows it (precheck otherwise fails).
+kolla_enable_tls_internal: "yes"
+kolla_enable_tls_external: "yes"
+# Certificates: `kolla-ansible certificates -i multinode` generates a self-signed lab CA
+# (/etc/kolla/certificates/ca/root.crt, ~2.8 years) and the endpoint certificate for the VIP IP
+# (haproxy.pem, 1 year, copied to haproxy-internal.pem for the shared VIP). Kolla labels this
+# command "for development only" — fine for the lab, never for production.
+kolla_copy_ca_into_containers: "yes"    # copies the CA into every container's trust store
+# Not a certificate to create: the path of the trust bundle INSIDE the containers, which now
+# includes the lab CA, so services trust each other's HTTPS endpoints.
+openstack_cacert: "/etc/ssl/certs/ca-certificates.crt"   # Ubuntu images (Rocky: /etc/pki/tls/certs/ca-bundle.crt)
+# Makes the generated admin-openrc.sh export OS_CACERT, so the openstack CLI on the deploy host
+# trusts the lab CA (Kolla default is empty).
+kolla_admin_openrc_cacert: "/etc/kolla/certificates/ca/root.crt"
