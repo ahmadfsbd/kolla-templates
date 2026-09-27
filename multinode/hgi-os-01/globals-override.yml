@@ -79,3 +79,8 @@ openstack_cacert: "/etc/ssl/certs/ca-certificates.crt"   # Ubuntu images (Rocky:
 # Makes the generated admin-openrc.sh export OS_CACERT, so the openstack CLI on the deploy host
 # trusts the lab CA (Kolla default is empty).
 kolla_admin_openrc_cacert: "/etc/kolla/certificates/ca/root.crt"
+
+# --- Neutron external interface -----------------------
+# Floating IPs for external networks are allocated from the subnet of this interface. The interface
+# must be on the same network as the external network(s) you create in OpenStack.
+neutron_external_interface: "enp8s0"
