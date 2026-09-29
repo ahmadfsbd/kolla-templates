@@ -1,0 +1,17 @@
+# Nexus policy overrides for Keystone (hgi-os-01). Copy to /etc/kolla/config/keystone/policy.yaml,
+# then: kolla-ansible reconfigure -i multinode --tags keystone
+# oslo.policy applies only the rules listed here; every other rule keeps its default.
+# Defaults checked against keystone stable/2026.1 keystone/common/policies/{base,application_credential,ec2_credential}.py.
+
+# ADR-0010 (approved 2026-09-26): a domain manager (the Nexus provisioner) may assign only these
+# roles. Upstream default: 'manager', 'member' or 'reader'. Removing 'manager' stops a stolen
+# provisioner minting more domain managers (T35); 'nexus_automation' is the role it assigns to
+# service-account (-s) groups (ADR-0012). Probe: prov.confinement (spec 004).
+"domain_managed_target_role": "'member':%(target.role.name)s or 'reader':%(target.role.name)s or 'nexus_automation':%(target.role.name)s"
+
+# ADR-0012 / onboarding requirements: people cannot mint long-lived credentials that outlive their
+# access; service accounts (which hold nexus_automation) can.
+# Upstream default: "user_id:%(user_id)s" (the owner).  Probe: appcred.local_refused, fed.appcred_refused.
+"identity:create_application_credential": "user_id:%(user_id)s and role:nexus_automation"
+# Upstream default: "(rule:admin_required) or (role:member and user_id:%(target.credential.user_id)s)".
+"identity:ec2_create_credential": "(rule:admin_required) or (role:member and role:nexus_automation and user_id:%(target.credential.user_id)s)"

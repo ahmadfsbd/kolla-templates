@@ -1,0 +1,9 @@
+# Nexus policy overrides for Glance (hgi-os-01). Copy to /etc/kolla/config/glance/policy.yaml,
+# then: kolla-ansible reconfigure -i multinode --tags glance
+# Defaults checked against glance stable/2026.1 glance/policies/{base,image}.py.
+
+# ADR-0013 cross-organization sharing restrictions: only an admin may share an image with another
+# project or make it community-visible. Upstream default for both:
+# "rule:context_is_admin or (<project member>)".  Probes: share.glance_member, share.glance_community.
+"add_member": "rule:context_is_admin"
+"communitize_image": "rule:context_is_admin"

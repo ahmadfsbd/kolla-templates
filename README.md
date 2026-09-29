@@ -8,6 +8,8 @@ Kolla-Ansible deployment templates, plus a guide to picking a matching kolla-ans
 |---|---|
 | [all-in-one/](all-in-one/) | Single-node deploy driven from a separate deployment host: `2025.2-ubuntu-noble` with a custom Horizon image. Step-by-step guide in [all-in-one/README.md](all-in-one/README.md). |
 | [multinode/2-node-demo/](multinode/2-node-demo/) | Two-node deploy using OVN. `globals-basic.yml` is plain OVN; `globals-provider-net.yml` / `globals.yml` add provider networks with distributed floating IPs. Build notes in [context.md](multinode/2-node-demo/context.md). |
+| [features.md](features.md) | How to enable specific features: host preparation and settings for TLS, Cinder LVM, Octavia. |
+| [troubleshooting.md](troubleshooting.md) | Where configs, logs and data live on a node, what `config.json` does, how to make changes, and debugging commands. |
 
 ---
 

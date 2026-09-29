@@ -1,0 +1,11 @@
+# Lab 1 lockdown of Blazar (authorised 2026-10-01): not offered on this lab (spec 004 §9), so
+# customers may not create or change anything through it until its Phase 2 support. Only the
+# rules below change; every other rule keeps its upstream 2026.1 default (generated from the
+# running blazar_api container with oslopolicy-sample-generator). Reads stay as upstream.
+# Copy to /etc/kolla/config/blazar/policy.yaml. Proved by lockdown.non_offered (reservation).
+
+# upstream: "rule:project_member_or_admin"
+"blazar:leases:post": "rule:admin"
+
+# upstream: "rule:project_member_or_admin"
+"blazar:leases:put": "rule:admin"

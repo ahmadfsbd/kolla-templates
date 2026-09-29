@@ -1,0 +1,11 @@
+# Nexus policy overrides for Cinder (hgi-os-01). Copy to /etc/kolla/config/cinder/policy.yaml,
+# then: kolla-ansible reconfigure -i multinode --tags cinder
+# Defaults checked against cinder stable/2026.1 cinder/policies/{base,volume_transfer}.py.
+# (Cinder's legacy policy defaults stay on this lab on purpose until E16 has shown the reader
+#  probe catching them: see deploy/lab/hgi-os-01/README.md. This file does not change that.)
+
+# ADR-0013 cross-organization sharing restrictions: only an admin may create or accept a volume
+# transfer. Upstream default for both: "rule:xena_system_admin_or_project_member".
+# Probe: share.cinder_transfer (spec 004).
+"volume:create_transfer": "rule:context_is_admin"
+"volume:accept_transfer": "rule:context_is_admin"

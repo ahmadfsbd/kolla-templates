@@ -1,0 +1,71 @@
+# Lab 1 lockdown of Heat (orchestration and its CloudFormation API) (authorised 2026-10-01): not offered on this lab (spec 004 §9), so
+# customers may not create or change anything through it until its Phase 2 support. Only the
+# rules below change; every other rule keeps its upstream 2026.1 default (generated from the
+# running heat_api container with oslopolicy-sample-generator). Reads stay as upstream.
+# Copy to /etc/kolla/config/heat/policy.yaml. Proved by lockdown.non_offered (orchestration, cloudformation).
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:create": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:update": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:update_patch": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:preview_update": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:preview_update_patch": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:abandon": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:snapshot": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:restore_snapshot": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:validate_template": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"stacks:generate_template": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"actions:action": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"actions:snapshot": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"actions:suspend": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"actions:resume": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"actions:cancel_update": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"actions:cancel_without_rollback": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"resource:mark_unhealthy": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"software_configs:create": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"software_deployments:create": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"software_deployments:update": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"cloudformation:CreateStack": "role:admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"cloudformation:UpdateStack": "role:admin"

@@ -1,0 +1,14 @@
+# Lab 1 lockdown of Aodh (authorised 2026-10-01): not offered on this lab (spec 004 §9), so
+# customers may not create or change anything through it until its Phase 2 support. Only the
+# rules below change; every other rule keeps its upstream 2026.1 default (generated from the
+# running aodh_api container with oslopolicy-sample-generator). Reads stay as upstream.
+# Copy to /etc/kolla/config/aodh/policy.yaml. Proved by lockdown.non_offered (alarming).
+
+# upstream: "role:member and project_id:%(project_id)s"
+"telemetry:create_alarm": "rule:context_is_admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"telemetry:change_alarm": "rule:context_is_admin"
+
+# upstream: "role:member and project_id:%(project_id)s"
+"telemetry:change_alarm_state": "rule:context_is_admin"
