@@ -1,0 +1,33 @@
+[
+  {
+    "local": [
+      {
+        "user": {
+          "domain": {
+            "id": "eb6c3dacb40e4bd19fa316199207d79d"
+          },
+          "id": "{0}",
+          "name": "{0}"
+        }
+      },
+      {
+        "domain": {
+          "id": "eb6c3dacb40e4bd19fa316199207d79d"
+        },
+        "groups": "{1}"
+      }
+    ],
+    "remote": [
+      {
+        "type": "OIDC-nexus_subject"
+      },
+      {
+        "regex": true,
+        "type": "OIDC-nexus_groups",
+        "whitelist": [
+          "^nxg-[0-9a-f]{32}-[mr]$"
+        ]
+      }
+    ]
+  }
+]
