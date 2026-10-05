@@ -414,3 +414,71 @@ openstack service list
 Horizon is at `http://<kolla_external_vip_address>` (the internal VIP unless you set a separate external one). Log in as `admin` with `keystone_admin_password` from `/etc/kolla/passwords.yml`.
 
 Optional, for testing only: `~/kolla-venv-2026.1/share/kolla-ansible/init-runonce` creates a demo network, a CirrOS image and flavors. Set `EXT_NET_CIDR`, `EXT_NET_RANGE` and `EXT_NET_GATEWAY` to match your external network before running it.
+
+---
+
+## Deploying a second cloud from the same deployment host
+
+A separate venv per cloud keeps the kolla-ansible *code* apart, but not the clouds
+themselves. Everything that defines a cloud lives in its config directory, `/etc/kolla`
+by default. Two clouds sharing it go wrong like this:
+
+| In the config directory | What goes wrong when two clouds share it |
+|---|---|
+| `globals.d/`, `globals.yml` | Swapping in the other cloud's settings means the next `kolla-ansible` run against the first cloud pushes the wrong VIP and settings to it, and takes it down |
+| `certificates/` | The endpoint certificate only covers one VIP. Generating one for the second cloud overwrites the first cloud's, which breaks on its next reconfigure |
+| `passwords.yml` | Both clouds get the same admin, database and RabbitMQ passwords |
+| `admin-openrc.sh`, `clouds.yaml` | `post-deploy` overwrites them, so the CLI silently points at whichever cloud ran it last |
+| `config/` | Shared service overrides. Anything per cloud (e.g. Keystone federation redirect URLs) ends up wrong for one of them |
+
+**Give each cloud its own config directory, chosen by its venv.** kolla-ansible uses the
+`KOLLA_CONFIG_PATH` environment variable as its default `--configdir`. Its passwords
+file, certificates and `config/` overrides all follow from that.
+
+1. **Create the second cloud's config directory:**
+   ```bash
+   sudo mkdir /etc/kolla-<cloud2> && sudo chown $USER: /etc/kolla-<cloud2>
+   cp ~/<venv-cloud2>/share/kolla-ansible/etc_examples/kolla/* /etc/kolla-<cloud2>/
+   mkdir /etc/kolla-<cloud2>/globals.d
+   cp <cloud2 override files> /etc/kolla-<cloud2>/globals.d/
+   kolla-genpwd -p /etc/kolla-<cloud2>/passwords.yml      # its own passwords
+   ```
+   Copy any `config/` overrides the second cloud needs from the first cloud's directory,
+   then review anything cloud-specific. Change hard-coded `/etc/kolla/...` paths in its
+   settings to `{{ node_config }}/...`, which follows `--configdir` automatically.
+
+2. **Point each venv at its own directory.** Set it in **both** venvs. Otherwise
+   deactivating one venv and activating the other in the same shell keeps the old value:
+   ```bash
+   echo 'export KOLLA_CONFIG_PATH=/etc/kolla'          >> ~/<venv-cloud1>/bin/activate
+   echo 'export KOLLA_CONFIG_PATH=/etc/kolla-<cloud2>' >> ~/<venv-cloud2>/bin/activate
+   ```
+   For the CLI, source that cloud's `$KOLLA_CONFIG_PATH/admin-openrc.sh`.
+
+3. **Certificates.** Either let the second cloud have its own lab CA (just run
+   `kolla-ansible certificates`), or reuse the first cloud's CA so clients trust both
+   after a single import. Copy the CA before generating, and kolla-ansible issues a new
+   endpoint certificate for the new VIP, signed by the existing CA:
+   ```bash
+   mkdir -p /etc/kolla-<cloud2>/certificates/private
+   cp -r /etc/kolla/certificates/ca           /etc/kolla-<cloud2>/certificates/
+   cp -r /etc/kolla/certificates/private/root /etc/kolla-<cloud2>/certificates/private/
+   kolla-ansible certificates -i <cloud2-inventory>        # with the cloud2 venv active
+   ```
+
+4. **Give it its own VIP and keepalived router ID** if the clouds share a subnet. Two
+   clusters with the same `keepalived_virtual_router_id` (default `51`) interfere with
+   each other even when their VIPs differ:
+   ```yaml
+   kolla_internal_vip_address: "<unused IP>"
+   keepalived_virtual_router_id: "52"     # any 0-255 not used by another cluster on the subnet
+   ```
+   When the nodes are OpenStack VMs, reserve the VIP and allow it on the controllers'
+   ports in the underlying cloud first; see the comments in a cluster's
+   `globals-override.yml`.
+
+5. **Check which cloud you're about to change, before every run:**
+   ```bash
+   echo $KOLLA_CONFIG_PATH; grep vip_address $KOLLA_CONFIG_PATH/globals.d/*.yml
+   ```
+   Each cloud also needs its own inventory file. Always pass the matching one with `-i`.

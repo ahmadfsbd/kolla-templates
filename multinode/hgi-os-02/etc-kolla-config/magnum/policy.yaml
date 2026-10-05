@@ -1,0 +1,44 @@
+# Lab 1 lockdown of Magnum (authorised 2026-10-01): not offered on this lab (spec 004 §9), so
+# customers may not create or change anything through it until its Phase 2 support. Only the
+# rules below change; every other rule keeps its upstream 2026.1 default (generated from the
+# running magnum_api container with oslopolicy-sample-generator). Reads stay as upstream.
+# Copy to /etc/kolla/config/magnum/policy.yaml. Proved by lockdown.non_offered (container-infrastructure-management).
+
+# upstream: "rule:admin_or_project_member_deny_cluster_user"
+"cluster:create": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member_deny_cluster_user"
+"cluster:update": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member_deny_cluster_user"
+"cluster:resize": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member_deny_cluster_user"
+"cluster:upgrade": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member_deny_cluster_user"
+"clustertemplate:create": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member"
+"clustertemplate:update": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member"
+"nodegroup:create": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member"
+"nodegroup:update": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member_deny_cluster_user"
+"federation:create": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member_deny_cluster_user"
+"federation:update": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member_user"
+"certificate:create": "rule:context_is_admin"
+
+# upstream: "rule:admin_or_project_member"
+"certificate:rotate_ca": "rule:context_is_admin"
+
+# upstream: "rule:project_member_deny_cluster_user"
+"credential:rotate": "rule:context_is_admin"

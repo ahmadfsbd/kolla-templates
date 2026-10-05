@@ -1,0 +1,18 @@
+# Lab 1 lockdown of Gnocchi (authorised 2026-10-01): not offered on this lab (spec 004 §9), so
+# customers may not create or change anything through it until its Phase 2 support. Only the
+# rules below change; every other rule keeps its upstream 2026.1 default (generated from the
+# running gnocchi_api container with oslopolicy-sample-generator). Reads stay as upstream.
+# Copy to /etc/kolla/config/gnocchi/policy.yaml. Proved by lockdown.non_offered (metric).
+# The telemetry service (Ceilometer, role service or admin) keeps writing measures.
+
+# upstream: ""
+"create resource": "rule:admin_or_service"
+
+# upstream: "rule:admin_or_service or rule:creator"
+"update resource": "rule:admin_or_service"
+
+# upstream: ""
+"create metric": "rule:admin_or_service"
+
+# upstream: "rule:admin_or_service or rule:creator"
+"post measures": "rule:admin_or_service"

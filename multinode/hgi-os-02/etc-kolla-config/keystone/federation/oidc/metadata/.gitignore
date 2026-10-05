@@ -1,0 +1,2 @@
+# The provider .client files hold the Keycloak client secret: never commit them.
+*.client

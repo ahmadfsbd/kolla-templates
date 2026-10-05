@@ -1,0 +1,112 @@
+kolla_base_distro: "ubuntu"
+
+# One deployment host, several clusters: give each cluster its own config directory, or they
+# share (and overwrite) each other's globals.d, passwords.yml, certificates/ and config/.
+#   sudo mkdir -p /etc/kolla-02 && sudo chown $USER: /etc/kolla-02
+#   cp -r <venv>/share/kolla-ansible/etc_examples/kolla/* /etc/kolla-02/
+#   kolla-genpwd -p /etc/kolla-02/passwords.yml
+#   kolla-ansible <command> -i multinode --configdir /etc/kolla-02     # on EVERY command
+# Paths below use {{ node_config }} (= the --configdir) so they follow it automatically.
+
+
+# Internal VIP: an unused IP on the controllers' network_interface subnet.
+# keepalived holds it on one controller at a time.
+#
+# When the nodes are OpenStack VMs, run these against the underlying (outer) cloud:
+#   1. Find the network name and each controller's port:
+#        openstack server show <controller> -c addresses        # e.g. finngen=10.11.11.91
+#        CTL_PORT=$(openstack port list --server <controller> --fixed-ip ip-address=<controller-ip> -f value -c ID)
+#   2. Reserve the VIP with a port attached to no VM, so the outer cloud never hands that
+#      IP to anything else (Neutron picks a free IP; add --fixed-ip subnet=<subnet>,ip-address=<ip>
+#      to choose one):
+#        openstack port create --network <network> --description "kolla internal VIP for <cluster>" <cluster>-vip
+#        openstack port show <cluster>-vip -c fixed_ips          # this IP is the VIP
+#   3. Allow the VIP on EVERY controller's own port, otherwise the outer cloud drops its traffic:
+#        openstack port set --allowed-address ip-address=<VIP> $CTL_PORT
+#        openstack port show $CTL_PORT -c allowed_address_pairs
+#   With more than one controller, the security group must also allow VRRP
+#   (IP protocol 112) between them.
+#
+# Every kolla cluster on the same subnet needs its OWN VIP and its OWN
+# keepalived_virtual_router_id (0-255, default 51). Two clusters on the same ID fight over VRRP.
+#
+# hgi-os-02's own VIP. Never reuse 10.11.11.102: that is hgi-os-01's live VIP, and sharing it would
+# break both clusters.
+kolla_internal_vip_address: "10.11.11.39"
+keepalived_virtual_router_id: "52"    # hgi-os-01 uses the default, 51
+
+network_interface: "enp3s0"
+
+neutron_plugin_agent: "ovn"
+
+openstack_logging_debug: "True"
+
+enable_aodh: true
+enable_blazar: true
+enable_ceilometer: true
+enable_cinder: true
+enable_cloudkitty: true
+enable_collectd: true
+enable_gnocchi: true
+enable_heat: true
+enable_magnum: true
+enable_octavia: true
+
+# Cinder LVM backend (test only: volumes live on one node and are served over iSCSI).
+# kolla finds the volume group by name (cinder_volume_group, default "cinder-volumes")
+# on the hosts in [storage], and prechecks fail if it's missing. Before deploying:
+#   1. In the underlying cloud, create a disk and attach it to the storage host:
+#        openstack volume create --size 100 os-02-ctl-01-cinder
+#        openstack server add volume os-02-ctl-01 os-02-ctl-01-cinder
+#   2. On os-02-ctl-01, create the volume group (done: cinder-volumes on /dev/vdb, 100G):
+#        lsblk                                  # find the new disk, e.g. /dev/vdb
+#        sudo pvcreate /dev/vdb
+#        sudo vgcreate cinder-volumes /dev/vdb
+#   Only if you add more backends later, create a volume type per backend:
+#        openstack volume type create --property volume_backend_name=lvm-1 lvm
+enable_cinder_backend_lvm: true
+#cinder_volume_group: "cinder-volumes"    # set only if you named the volume group differently
+enable_cinder_backup: false    # the default backup driver is Ceph, which you don't have
+
+
+# Octavia: use OVN's built-in load balancer instead of amphora VMs.
+# This needs no certificates, amphora image, management network or Valkey.
+# Limitation: TCP/UDP only (no TLS termination or HTTP/L7 rules).
+# To switch to amphora later: run `kolla-ansible octavia-certificates -i ./multinode`,
+# set enable_valkey: true, plan lb-mgmt-net, and upload an image tagged "amphora".
+octavia_provider_drivers: "ovn:OVN provider"
+
+# --- TLS on the API endpoints -------------------------------------------------------
+#
+# Where Kolla looks for certificates (on the deploy host, <configdir>/certificates/, i.e.
+# /etc/kolla-02/certificates/ for this cluster):
+#   haproxy.pem            external endpoint: certificate + intermediates + private key, PEM
+#   haproxy-internal.pem   internal endpoint: same format
+#   ca/                    CA certificates copied into every container's trust store
+#   backend-cert.pem, backend-key.pem   only with kolla_enable_tls_backend
+# After any change to these files: kolla-ansible reconfigure -i <inventory> (then post-deploy only
+# if kolla_admin_openrc_cacert's path changed).
+#
+# ===== LAB (active) — hgi-os-02 ===============================================================
+# One VIP (10.11.11.39) for internal and external. With a shared VIP Kolla only allows TLS when
+# the *internal* setting is on; kolla_enable_tls_external then follows it (precheck otherwise fails).
+kolla_enable_tls_internal: "yes"
+kolla_enable_tls_external: "yes"
+# Certificates: `kolla-ansible certificates -i multinode` generates a self-signed lab CA
+# (<configdir>/certificates/ca/root.crt, ~2.8 years) and the endpoint certificate for the VIP IP
+# (haproxy.pem, 1 year, copied to haproxy-internal.pem for the shared VIP). If hgi-os-01's CA
+# (ca/ and private/root/) is copied into this configdir first, kolla reuses it and only issues a
+# new haproxy.pem for 10.11.11.39, so clients trust both clouds with one CA import. Kolla labels this
+# command "for development only" — fine for the lab, never for production.
+kolla_copy_ca_into_containers: "yes"    # copies the CA into every container's trust store
+# Not a certificate to create: the path of the trust bundle INSIDE the containers, which now
+# includes the lab CA, so services trust each other's HTTPS endpoints.
+openstack_cacert: "/etc/ssl/certs/ca-certificates.crt"   # Ubuntu images (Rocky: /etc/pki/tls/certs/ca-bundle.crt)
+# Makes the generated admin-openrc.sh export OS_CACERT, so the openstack CLI on the deploy host
+# trusts the lab CA (Kolla default is empty).
+kolla_admin_openrc_cacert: "{{ node_config }}/certificates/ca/root.crt"
+
+# --- Neutron external interface -----------------------
+# Floating IPs for external networks are allocated from the subnet of this interface. The interface
+# must be on the same network as the external network(s) you create in OpenStack.
+neutron_external_interface: "enp8s0"

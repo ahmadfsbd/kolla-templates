@@ -1,0 +1,9 @@
+# Nexus policy overrides for Neutron (hgi-os-01). Copy to /etc/kolla/config/neutron/policy.yaml,
+# then: kolla-ansible reconfigure -i multinode --tags neutron
+# Defaults checked against neutron stable/2026.1 neutron/conf/policies/{base,rbac}.py.
+
+# ADR-0013 cross-organization sharing restrictions: only an admin may share networks, security
+# groups or QoS policies with another project. Upstream default for both:
+# "(rule:admin_only) or (<project member>)".  Probe: share.neutron_rbac (spec 004).
+"create_rbac_policy": "rule:admin_only"
+"update_rbac_policy": "rule:admin_only"
