@@ -1,0 +1,13 @@
+---
+# Cloud 2 (hgi-os-02): Magnum disabled, as on hgi-os-01 (owner approval 2026-10-03). Magnum's
+# 2026.1 driver needs a Cluster API management cluster (template creates answered 500,
+# "~/.kube/config not found"), which this cloud does not have; Nexus does not offer container
+# infrastructure before Phase 2.
+#
+# Consequence for Nexus onboarding: with Magnum disabled its Keystone endpoint is never
+# registered, so this cloud's onboarding.toml deliberately carries **no**
+# container-infrastructure-management row. A `locked_down` classification is a claim that a probe
+# can disprove, and there is nothing here to probe. Re-enable with a working driver by removing
+# this file, then `kolla-ansible deploy --configdir /etc/kolla-02 --tags magnum` (which also
+# re-registers its Keystone endpoints), and add the row at the same time.
+enable_magnum: "no"

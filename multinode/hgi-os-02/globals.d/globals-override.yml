@@ -30,8 +30,8 @@ kolla_base_distro: "ubuntu"
 # Every kolla cluster on the same subnet needs its OWN VIP and its OWN
 # keepalived_virtual_router_id (0-255, default 51). Two clusters on the same ID fight over VRRP.
 #
-# hgi-os-02's own VIP. Never reuse 10.11.11.102: that is hgi-os-01's live VIP, and sharing it would
-# break both clusters.
+# Placeholder on purpose: 10.11.11.102 is hgi-os-01's live VIP, so deploying with it would break
+# both clusters. Put the IP from step 2 here (an invalid value fails fast instead of clashing).
 kolla_internal_vip_address: "10.11.11.39"
 keepalived_virtual_router_id: "52"    # hgi-os-01 uses the default, 51
 
@@ -56,9 +56,9 @@ enable_octavia: true
 # kolla finds the volume group by name (cinder_volume_group, default "cinder-volumes")
 # on the hosts in [storage], and prechecks fail if it's missing. Before deploying:
 #   1. In the underlying cloud, create a disk and attach it to the storage host:
-#        openstack volume create --size 100 os-02-ctl-01-cinder
-#        openstack server add volume os-02-ctl-01 os-02-ctl-01-cinder
-#   2. On os-02-ctl-01, create the volume group (done: cinder-volumes on /dev/vdb, 100G):
+#        openstack volume create --size 100 os-ctl-01-cinder
+#        openstack server add volume os-ctl-01 os-ctl-01-cinder
+#   2. On os-ctl-01, create the volume group:
 #        lsblk                                  # find the new disk, e.g. /dev/vdb
 #        sudo pvcreate /dev/vdb
 #        sudo vgcreate cinder-volumes /dev/vdb
@@ -78,25 +78,22 @@ octavia_provider_drivers: "ovn:OVN provider"
 
 # --- TLS on the API endpoints -------------------------------------------------------
 #
-# Where Kolla looks for certificates (on the deploy host, <configdir>/certificates/, i.e.
-# /etc/kolla-02/certificates/ for this cluster):
+# Where Kolla looks for certificates (on the deploy host, /etc/kolla/certificates/):
 #   haproxy.pem            external endpoint: certificate + intermediates + private key, PEM
 #   haproxy-internal.pem   internal endpoint: same format
 #   ca/                    CA certificates copied into every container's trust store
 #   backend-cert.pem, backend-key.pem   only with kolla_enable_tls_backend
-# After any change to these files: kolla-ansible reconfigure -i <inventory> (then post-deploy only
-# if kolla_admin_openrc_cacert's path changed).
+# After any change to these files: kolla-ansible reconfigure -i <inventory> (then post-deploy if
+# the CA changed, so admin-openrc.sh picks it up).
 #
-# ===== LAB (active) — hgi-os-02 ===============================================================
-# One VIP (10.11.11.39) for internal and external. With a shared VIP Kolla only allows TLS when
+# ===== LAB (active) — hgi-os-01 ===============================================================
+# One VIP (10.11.11.102) for internal and external. With a shared VIP Kolla only allows TLS when
 # the *internal* setting is on; kolla_enable_tls_external then follows it (precheck otherwise fails).
 kolla_enable_tls_internal: "yes"
 kolla_enable_tls_external: "yes"
 # Certificates: `kolla-ansible certificates -i multinode` generates a self-signed lab CA
-# (<configdir>/certificates/ca/root.crt, ~2.8 years) and the endpoint certificate for the VIP IP
-# (haproxy.pem, 1 year, copied to haproxy-internal.pem for the shared VIP). If hgi-os-01's CA
-# (ca/ and private/root/) is copied into this configdir first, kolla reuses it and only issues a
-# new haproxy.pem for 10.11.11.39, so clients trust both clouds with one CA import. Kolla labels this
+# (/etc/kolla/certificates/ca/root.crt, ~2.8 years) and the endpoint certificate for the VIP IP
+# (haproxy.pem, 1 year, copied to haproxy-internal.pem for the shared VIP). Kolla labels this
 # command "for development only" — fine for the lab, never for production.
 kolla_copy_ca_into_containers: "yes"    # copies the CA into every container's trust store
 # Not a certificate to create: the path of the trust bundle INSIDE the containers, which now

@@ -1,0 +1,7 @@
+---
+# Lab 1 (hgi-os-01), owner approval 2026-10-03: Magnum disabled. Its 2026.1 driver needs a Cluster
+# API management cluster (template creates answered 500, "~/.kube/config not found"), which this
+# lab does not have; Nexus does not offer it before Phase 2. Re-enable with a working driver for
+# the Heat/Magnum experiment (E25): remove this file, then `kolla-ansible deploy --tags magnum`
+# (which also re-registers its Keystone endpoints).
+enable_magnum: "no"
