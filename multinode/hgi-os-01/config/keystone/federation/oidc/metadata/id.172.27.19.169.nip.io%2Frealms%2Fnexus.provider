@@ -23,7 +23,7 @@
     "A192CBC-HS384",
     "A256CBC-HS512"
   ],
-  "authorization_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/auth",
+  "authorization_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/auth",
   "authorization_response_iss_parameter_supported": true,
   "authorization_signing_alg_values_supported": [
     "PS384",
@@ -40,7 +40,7 @@
     "PS512",
     "RS512"
   ],
-  "backchannel_authentication_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/ext/ciba/auth",
+  "backchannel_authentication_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/ext/ciba/auth",
   "backchannel_authentication_request_signing_alg_values_supported": [
     "PS384",
     "RS384",
@@ -59,7 +59,7 @@
     "poll",
     "ping"
   ],
-  "check_session_iframe": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/login-status-iframe.html",
+  "check_session_iframe": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/login-status-iframe.html",
   "claim_types_supported": [
     "normal"
   ],
@@ -84,7 +84,7 @@
     "plain",
     "S256"
   ],
-  "device_authorization_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/auth/device",
+  "device_authorization_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/auth/device",
   "dpop_signing_alg_values_supported": [
     "PS384",
     "RS384",
@@ -97,7 +97,7 @@
     "PS512",
     "RS512"
   ],
-  "end_session_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/logout",
+  "end_session_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/logout",
   "frontchannel_logout_session_supported": true,
   "frontchannel_logout_supported": true,
   "grant_types_supported": [
@@ -143,7 +143,7 @@
     "PS512",
     "RS512"
   ],
-  "introspection_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/token/introspect",
+  "introspection_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/token/introspect",
   "introspection_endpoint_auth_methods_supported": [
     "private_key_jwt",
     "client_secret_basic",
@@ -166,25 +166,26 @@
     "PS512",
     "RS512"
   ],
-  "issuer": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci",
-  "jwks_uri": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/certs",
+  "issuer": "https://id.172.27.19.169.nip.io/realms/nexus",
+  "jwks_uri": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/certs",
   "mtls_endpoint_aliases": {
-    "backchannel_authentication_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/ext/ciba/auth",
-    "device_authorization_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/auth/device",
-    "introspection_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/token/introspect",
-    "pushed_authorization_request_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/ext/par/request",
-    "registration_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/clients-registrations/openid-connect",
-    "revocation_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/revoke",
-    "token_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/token",
-    "userinfo_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/userinfo"
+    "backchannel_authentication_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/ext/ciba/auth",
+    "device_authorization_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/auth/device",
+    "introspection_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/token/introspect",
+    "pushed_authorization_request_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/ext/par/request",
+    "registration_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/clients-registrations/openid-connect",
+    "revocation_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/revoke",
+    "token_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/token",
+    "userinfo_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/userinfo"
   },
   "prompt_values_supported": [
     "none",
     "login",
-    "consent"
+    "consent",
+    "create"
   ],
-  "pushed_authorization_request_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/ext/par/request",
-  "registration_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/clients-registrations/openid-connect",
+  "pushed_authorization_request_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/ext/par/request",
+  "registration_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/clients-registrations/openid-connect",
   "request_object_encryption_alg_values_supported": [
     "ECDH-ES+A256KW",
     "ECDH-ES+A192KW",
@@ -241,7 +242,7 @@
     "code token",
     "code id_token token"
   ],
-  "revocation_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/revoke",
+  "revocation_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/revoke",
   "revocation_endpoint_auth_methods_supported": [
     "private_key_jwt",
     "client_secret_basic",
@@ -266,25 +267,25 @@
   ],
   "scopes_supported": [
     "openid",
-    "basic",
-    "email",
     "web-origins",
-    "organization",
+    "offline_access",
+    "acr",
     "service_account",
     "profile",
-    "acr",
-    "offline_access",
-    "phone",
+    "organization",
+    "email",
     "address",
-    "microprofile-jwt",
-    "roles"
+    "phone",
+    "basic",
+    "roles",
+    "microprofile-jwt"
   ],
   "subject_types_supported": [
     "public",
     "pairwise"
   ],
   "tls_client_certificate_bound_access_tokens": true,
-  "token_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/token",
+  "token_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/token",
   "token_endpoint_auth_methods_supported": [
     "private_key_jwt",
     "client_secret_basic",
@@ -324,7 +325,7 @@
     "A192CBC-HS384",
     "A256CBC-HS512"
   ],
-  "userinfo_endpoint": "https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/userinfo",
+  "userinfo_endpoint": "https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/userinfo",
   "userinfo_signing_alg_values_supported": [
     "PS384",
     "RS384",

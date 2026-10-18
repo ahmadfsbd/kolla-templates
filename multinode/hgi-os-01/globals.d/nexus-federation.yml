@@ -3,16 +3,16 @@
 enable_keystone_federation: 'yes'
 keystone_identity_providers:
 - name: nexus
-  openstack_domain: nexus-ci
+  openstack_domain: nexus
   protocol: openid
-  identifier: https://keycloak.172.27.19.169.nip.io/realms/nexus-ci
+  identifier: https://id.172.27.19.169.nip.io/realms/nexus
   public_name: Nexus
   attribute_mapping: nexus
   metadata_folder: /etc/kolla/config/keystone/federation/oidc/metadata
 keystone_identity_mappings:
 - name: nexus
   file: /etc/kolla/config/keystone/federation/nexus-mapping.json
-keystone_federation_oidc_jwks_uri: https://keycloak.172.27.19.169.nip.io/realms/nexus-ci/protocol/openid-connect/certs
+keystone_federation_oidc_jwks_uri: https://id.172.27.19.169.nip.io/realms/nexus/protocol/openid-connect/certs
 keystone_federation_oidc_response_type: code
 keystone_federation_oidc_scopes: openid
 keystone_federation_oidc_claim_delimiter: ;
