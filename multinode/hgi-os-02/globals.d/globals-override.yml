@@ -69,12 +69,22 @@ enable_cinder_backend_lvm: true
 enable_cinder_backup: false    # the default backup driver is Ceph, which you don't have
 
 
-# Octavia: use OVN's built-in load balancer instead of amphora VMs.
-# This needs no certificates, amphora image, management network or Valkey.
-# Limitation: TCP/UDP only (no TLS termination or HTTP/L7 rules).
-# To switch to amphora later: run `kolla-ansible octavia-certificates -i ./multinode`,
-# set enable_valkey: true, plan lb-mgmt-net, and upload an image tagged "amphora".
-octavia_provider_drivers: "ovn:OVN provider"
+# Octavia: amphora (HTTP, HTTPS with TLS termination through Barbican, L7 rules) and OVN's
+# built-in load balancer (TCP/UDP/SCTP only) side by side (owner, 2026-10-29: production runs
+# amphora with TLS termination). Amphora needs: `kolla-ansible --configdir /etc/kolla-02
+# octavia-certificates -i multinode`, Valkey for the jobboard, Barbican for the certificates of
+# HTTPS listeners, an image tagged "amphora" in the service project, and lb-mgmt-net, which the
+# controller reaches through o-hm0.
+octavia_provider_drivers: "amphora:Amphora provider, ovn:OVN provider"
+octavia_provider_agents: "amphora_agent, ovn"
+enable_valkey: true
+enable_barbican: true
+# LAB ONLY: lb-mgmt-net is a Geneve tenant network, and the controller joins it through o-hm0, an
+# OVS internal port on br-int that OVN binds to the Neutron port octavia-listen-port-os-02-ctl-01
+# (made 2026-10-29 by a first deploy in Kolla's "tenant" mode). The address is static, set by
+# /etc/systemd/system/octavia-interface.service on os-02-ctl-01. Production instead puts
+# lb-mgmt-net on a provider VLAN that the controllers' interface is on (cloud requirements).
+octavia_network_interface: "o-hm0"
 
 # --- TLS on the API endpoints -------------------------------------------------------
 #

@@ -56,11 +56,13 @@ octavia_provider_drivers: "amphora:Amphora provider, ovn:OVN provider"
 octavia_provider_agents: "amphora_agent, ovn"
 enable_valkey: true
 enable_barbican: true
-# LAB ONLY: lb-mgmt-net is a tenant (Geneve) network and each controller joins it with an OVS port
-# on br-int (o-hm0) bound to a Neutron port, so no extra NIC or VLAN is needed. Kolla documents
-# this as for development and testing; production gives lb-mgmt-net a provider VLAN that the
-# controllers' `octavia_network_interface` is on (see onboarding's cloud requirements).
-octavia_network_type: "tenant"
+# LAB ONLY: lb-mgmt-net is a Geneve tenant network, and the controller joins it through o-hm0, an
+# OVS internal port on br-int that OVN binds to the Neutron port octavia-listen-port-os-ctl-01
+# (made 2026-10-29 by a first deploy in Kolla's "tenant" mode, which Kolla's precheck refuses with
+# OVN and whose dhclient Ubuntu 24.04 lacks). The address is static, set by
+# /etc/systemd/system/octavia-interface.service on os-ctl-01. Production instead puts
+# lb-mgmt-net on a provider VLAN that the controllers' interface is on (cloud requirements).
+octavia_network_interface: "o-hm0"
 
 # --- TLS on the API endpoints -------------------------------------------------------
 #

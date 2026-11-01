@@ -1,0 +1,3 @@
+# Secrets the onboarding kit writes into a Kolla config (Nexus guide 04, step 6): the Keystone
+# client secret of the Nexus federation. Never commit them.
+**/keystone/federation/oidc/metadata/*.client
